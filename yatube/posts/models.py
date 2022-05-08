@@ -59,9 +59,9 @@ class Comment(models.Model):
                              on_delete=models.CASCADE,
                              verbose_name='Пост')
     author = models.ForeignKey(User,
-                                related_name='comments',
-                                on_delete=models.CASCADE,
-                                verbose_name='Автор комментария')
+                               related_name='comments',
+                               on_delete=models.CASCADE,
+                               verbose_name='Автор комментария')
     text = models.TextField(verbose_name='Текст комментария',
                             help_text='Напишите комментарий')
     created = models.DateTimeField(auto_now_add=True, verbose_name='Дата')
@@ -69,10 +69,10 @@ class Comment(models.Model):
 
 class Follow(models.Model):
     user = models.ForeignKey(User,
-                               related_name='follower',
-                               on_delete=models.CASCADE,
-                               verbose_name='Пользователь')
-    author = models.ForeignKey(User,
-                             related_name='following',
+                             related_name='follower',
                              on_delete=models.CASCADE,
-                             verbose_name='Автор')
+                             verbose_name='Пользователь')
+    author = models.ForeignKey(User,
+                               related_name='following',
+                               on_delete=models.CASCADE,
+                               verbose_name='Автор')
