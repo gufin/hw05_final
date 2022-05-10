@@ -226,6 +226,7 @@ class TaskPagesTests(TestCase):
                          'Этот пост мы ждем на главной странице')
 
     def test_following(self):
+        """Проверка работы подписки"""
         self.authorized_client2.get(reverse('posts:profile_follow',
                                     kwargs={'username': 'HasNoName'}))
         following = Follow.objects.filter(

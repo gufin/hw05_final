@@ -45,7 +45,7 @@ class Post(models.Model):
     )
 
     class Meta:
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
         verbose_name = "post"
 
     def __str__(self):
@@ -76,3 +76,5 @@ class Follow(models.Model):
                                related_name='following',
                                on_delete=models.CASCADE,
                                verbose_name='Автор')
+    models.UniqueConstraint(fields=['user', 'author'],
+                            name='unic_follow_record')

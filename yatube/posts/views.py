@@ -72,29 +72,18 @@ def post_detail(request, post_id):
 
 @login_required
 def post_create(request):
-    if request.method == 'POST':
-        form = PostForm(
-            request.POST or None,
-            files=request.FILES or None)
+    form = PostForm(
+        request.POST or None,
+        files=request.FILES or None)
 
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.pub_date = datetime.now()
-            post.save()
+    if form.is_valid():
+        post = form.save(commit=False)
+        post.author = request.user
+        post.pub_date = datetime.now()
+        post.save()
 
-            return redirect('posts:profile', request.user)
-        else:
-            title = 'Добавить запись'
-            is_edit = False
-            context = {
-                'title': title,
-                'form': form,
-                'is_edit': is_edit
-            }
-            return render(request, 'posts/create_post.html', context)
+        return redirect('posts:profile', request.user)
     else:
-        form = PostForm()
         title = 'Добавить запись'
         is_edit = False
         context = {
@@ -108,19 +97,18 @@ def post_create(request):
 @login_required
 def post_edit(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
+    form = PostForm(
+        request.POST or None,
+        files=request.FILES or None,
+        instance=post
+    )
     if request.method == "POST" and request.user == post.author:
-        form = PostForm(
-            request.POST or None,
-            files=request.FILES or None,
-            instance=post
-        )
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
             post.save()
             return redirect('posts:post_detail', post_id=post.pk)
     elif request.user == post.author:
-        form = PostForm(instance=post)
         title = 'Отредактировать запись'
         context = {
             'form': form,
