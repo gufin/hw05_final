@@ -14,6 +14,7 @@ URL_POST_DETAIL = reverse('posts:post_detail', args=[1, ])
 URL_POST_CRATE = reverse('posts:post_create')
 URL_POST_EDIT = reverse('posts:post_edit', args=[1, ])
 
+
 class TaskPagesTests(TestCase):
     @classmethod
     def setUpClass(cls):
