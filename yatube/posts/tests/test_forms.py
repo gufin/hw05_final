@@ -34,6 +34,13 @@ class PostCreateFormTests(TestCase):
             description='Тестовое описание',
         )
         cls.form = PostForm()
+        cls.small_gif = (
+            b'\x47\x49\x46\x38\x39\x61\x01\x00'
+            b'\x01\x00\x00\x00\x00\x21\xf9\x04'
+            b'\x01\x0a\x00\x01\x00\x2c\x00\x00'
+            b'\x00\x00\x01\x00\x01\x00\x00\x02'
+            b'\x02\x4c\x01\x00\x3b'
+        )
 
     @classmethod
     def tearDownClass(cls):
@@ -60,7 +67,7 @@ class PostCreateFormTests(TestCase):
         )
         self.assertRedirects(response,
                              reverse('posts:profile',
-                                     kwargs={'username': 'HasNoName'}))
+                                     args=['HasNoName', ]))
         self.assertEqual(Post.objects.count(), posts_count + 1)
         self.assertTrue(
             Post.objects.filter(
@@ -76,7 +83,7 @@ class PostCreateFormTests(TestCase):
             'group': self.group2.id,
         }
         self.authorized_client.post(
-            reverse('posts:post_edit', kwargs={'post_id': 1}),
+            reverse('posts:post_edit', args=[1, ]),
             data=form_data,
         )
         post = get_object_or_404(Post, id=1)
@@ -88,16 +95,10 @@ class PostCreateFormTests(TestCase):
         """при отправке поста с картинкой через форму PostForm
         создаётся запись в базе данных"""
         posts_count = Post.objects.count()
-        small_gif = (
-            b'\x47\x49\x46\x38\x39\x61\x01\x00'
-            b'\x01\x00\x00\x00\x00\x21\xf9\x04'
-            b'\x01\x0a\x00\x01\x00\x2c\x00\x00'
-            b'\x00\x00\x01\x00\x01\x00\x00\x02'
-            b'\x02\x4c\x01\x00\x3b'
-        )
+
         uploaded = SimpleUploadedFile(
             name='small.gif',
-            content=small_gif,
+            content=self.small_gif,
             content_type='image/gif'
         )
         group = get_object_or_404(Group, id=1)
@@ -120,12 +121,12 @@ class PostCreateFormTests(TestCase):
         self.assertEqual(testing_data, post)
 
         response = self.guest_client.get(
-            reverse('posts:group_list', kwargs={'slug': 'test'}))
+            reverse('posts:group_list', args=['test', ]))
         testing_data = response.context['page_obj'].object_list[0]
         self.assertEqual(testing_data, post)
 
         response = self.guest_client.get(
-            reverse('posts:profile', kwargs={'username': 'HasNoName'}))
+            reverse('posts:profile', args=['HasNoName', ]))
         testing_data = response.context['page_obj'].object_list[0]
         self.assertEqual(testing_data, post)
 
@@ -133,13 +134,13 @@ class PostCreateFormTests(TestCase):
         comment_count = Comment.objects.count()
         form_data = {'text': 'Тестовый комментарий'}
         self.guest_client.post(
-            reverse('posts:add_comment', kwargs={'post_id': 1}),
+            reverse('posts:add_comment', args=[1, ]),
             data=form_data,
             follow=True
         )
         self.assertEqual(Comment.objects.count(), comment_count)
         self.authorized_client.post(
-            reverse('posts:add_comment', kwargs={'post_id': 1}),
+            reverse('posts:add_comment', args=[1, ]),
             data=form_data,
             follow=True
         )

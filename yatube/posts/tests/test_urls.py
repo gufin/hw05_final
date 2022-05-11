@@ -4,6 +4,12 @@ from django.test import TestCase, Client
 
 from ..models import Post, Group, User
 
+URL_HOME = 'posts/index.html'
+URL_GROUP_LIST = 'posts/group_list.html'
+URL_PROFILE = 'posts/profile.html'
+URL_POST_DETAIL = 'posts/post_detail.html'
+URL_POST_CRATE = 'posts/create_post.html'
+
 
 class StaticURLTests(TestCase):
 
@@ -28,11 +34,11 @@ class PostURLTests(TestCase):
         )
 
         cls.templates_url_names = {
-            'posts/index.html': ['/'],
-            'posts/group_list.html': ['/group/test/'],
-            'posts/profile.html': ['/profile/HasNoName/'],
-            'posts/post_detail.html': ['/posts/1/'],
-            'posts/create_post.html': ['/posts/1/edit/', '/create/'],
+            URL_HOME: ['/'],
+            URL_GROUP_LIST: ['/group/test/'],
+            URL_PROFILE: ['/profile/HasNoName/'],
+            URL_POST_DETAIL: ['/posts/1/'],
+            URL_POST_CRATE: ['/posts/1/edit/', '/create/'],
         }
 
     def setUp(self):

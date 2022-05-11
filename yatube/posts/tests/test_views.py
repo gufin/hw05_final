@@ -4,9 +4,15 @@ from django.shortcuts import get_object_or_404
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from ..models import Post, Group, User, Follow
+from ..models import Follow, Group, Post, User
 from ..utills import paginator_add
 
+URL_HOME = reverse('posts:index')
+URL_GROUP_LIST = reverse('posts:group_list', args=['test', ])
+URL_PROFILE = reverse('posts:profile', args=['HasNoName', ])
+URL_POST_DETAIL = reverse('posts:post_detail', args=[1, ])
+URL_POST_CRATE = reverse('posts:post_create')
+URL_POST_EDIT = reverse('posts:post_edit', args=[1, ])
 
 class TaskPagesTests(TestCase):
     @classmethod
@@ -39,16 +45,13 @@ class TaskPagesTests(TestCase):
             )
 
         cls.templates_page_names = {
-            'posts/index.html': [reverse('posts:index')],
-            'posts/group_list.html':
-                [reverse('posts:group_list', kwargs={'slug': 'test'})],
-            'posts/profile.html':
-                [reverse('posts:profile', kwargs={'username': 'HasNoName'})],
-            'posts/post_detail.html':
-                [reverse('posts:post_detail', kwargs={'post_id': 1})],
+            'posts/index.html': [URL_HOME],
+            'posts/group_list.html': [URL_GROUP_LIST],
+            'posts/profile.html': [URL_PROFILE],
+            'posts/post_detail.html': [URL_POST_DETAIL],
             'posts/create_post.html': [
-                reverse('posts:post_create'),
-                reverse('posts:post_edit', kwargs={'post_id': 1})
+                URL_POST_CRATE,
+                URL_POST_EDIT
             ],
         }
 
@@ -93,7 +96,7 @@ class TaskPagesTests(TestCase):
         """Шаблон group_list сформирован с правильным контекстом и пдажинатор
                 выводит 10 постов на странице."""
         response = self.guest_client.get(
-            reverse('posts:group_list', kwargs={'slug': 'test'}))
+            reverse('posts:group_list', args=['test', ]))
 
         group = get_object_or_404(Group, slug='test')
         posts = group.posts.all()
@@ -104,14 +107,14 @@ class TaskPagesTests(TestCase):
     def test_second_group_list_page_contains_three_records(self):
         """Пдажинатор выводит 3 поста на 2 странице group_list."""
         response = self.guest_client.get(
-            reverse('posts:group_list', kwargs={'slug': 'test'}) + '?page=2')
+            reverse('posts:group_list', args=['test', ]) + '?page=2')
         self.assertEqual(len(response.context['page_obj']), 3)
 
     def test_profile_correct_context(self):
         """Шаблон profile сформирован с правильным контекстом и пдажинатор
                         выводит 10 постов на странице."""
         response = self.guest_client.get(
-            reverse('posts:profile', kwargs={'username': 'HasNoName'}))
+            reverse('posts:profile', args=['HasNoName', ]))
 
         author = get_object_or_404(User, username='HasNoName')
         posts = Post.objects.select_related('author').filter(
@@ -123,14 +126,14 @@ class TaskPagesTests(TestCase):
     def test_second_profile_page_contains_four_records(self):
         """Пдажинатор выводит 4 постов на 2 странице group_list."""
         response = self.guest_client.get(
-            reverse('posts:profile', kwargs={'username': 'HasNoName'})
+            reverse('posts:profile', args=['HasNoName', ])
             + '?page=2')
         self.assertEqual(len(response.context['page_obj']), 4)
 
     def test_post_detail_correct_context(self):
         """Детальная страница поста сформирована с правильным контекстом."""
         response = self.guest_client.get(
-            reverse('posts:post_detail', kwargs={'post_id': 1}))
+            reverse('posts:post_detail', args=[1, ]))
 
         post = get_object_or_404(Post, id=1)
         testing_data = response.context['post']
@@ -154,7 +157,7 @@ class TaskPagesTests(TestCase):
         """Страница редактирования поста сформирована
         с правильным контекстом."""
         response = self.authorized_client.get(
-            reverse('posts:post_edit', kwargs={'post_id': 1}))
+            reverse('posts:post_edit', args=[1, ]))
 
         form_fields = {
             'text': forms.fields.CharField,
@@ -189,12 +192,12 @@ class TaskPagesTests(TestCase):
             group_id=1,
         )
         response = self.guest_client.get(
-            reverse('posts:group_list', kwargs={'slug': 'test'}))
+            reverse('posts:group_list', args=['test', ]))
         testing_data = response.context['page_obj'].object_list[0]
         self.assertEqual(testing_data, post)
 
         response = self.guest_client.get(
-            reverse('posts:group_list', kwargs={'slug': 'test2'}))
+            reverse('posts:group_list', args=['test2', ]))
         testing_data = len(response.context['page_obj'].object_list)
         self.assertEqual(testing_data, 0)
 
@@ -207,7 +210,7 @@ class TaskPagesTests(TestCase):
             group_id=1,
         )
         response = self.guest_client.get(
-            reverse('posts:profile', kwargs={'username': 'HasNoName'}))
+            reverse('posts:profile', args=['HasNoName', ]))
         testing_data = response.context['page_obj'].object_list[0]
         self.assertEqual(testing_data, post)
 
@@ -226,9 +229,9 @@ class TaskPagesTests(TestCase):
                          'Этот пост мы ждем на главной странице')
 
     def test_following(self):
-        """Проверка работы подписки"""
+        """Проверка работы подпискиx`"""
         self.authorized_client2.get(reverse('posts:profile_follow',
-                                    kwargs={'username': 'HasNoName'}))
+                                            args=['HasNoName', ]))
         following = Follow.objects.filter(
             user_id=self.user2.id,
             author_id=self.user.id,
@@ -237,7 +240,7 @@ class TaskPagesTests(TestCase):
 
     def test_post_of_followed_author_in_correct_place(self):
         self.authorized_client2.get(reverse('posts:profile_follow',
-                                            kwargs={'username': 'HasNoName'}))
+                                            args=['HasNoName', ]))
         post = Post.objects.create(
             text='Проверка работы подписки',
             author_id=self.user.id,
