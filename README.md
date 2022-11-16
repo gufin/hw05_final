@@ -1,15 +1,15 @@
 # YATUBE
 🛠 With this social network project, you can create posts, leave comments under posts, and subscribe to the authors you like. 
 #### Used tools:
-- Python, 
-- Django, 
+- Python
+- Django 
 - Pillow
 - sorl-thumbnail
 - Bootstrap
 
 # 🚀 Project installation
 
-Клонируйте репозиторий
+Clone the repository
 
 ```sh
 git clone git@github.com:gufin/hw05_final.git
@@ -21,6 +21,11 @@ Install and activate the virtual environment
 python -m venv venv
 source venv/scripts/activate
 python -m pip install --upgrade pip
+```
+Install dependencies from requirements.txt file:
+```sh
+python -m pip install --upgrade pip
+pip install -r requirements.txt
 ```
 Next, you need to perform migrations:
 ```sh
